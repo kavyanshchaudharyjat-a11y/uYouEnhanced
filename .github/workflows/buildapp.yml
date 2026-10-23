@@ -161,7 +161,15 @@ jobs:
           cd main
           mv YouTube.ipa YouTube.zip
           unzip -q YouTube.zip
-          youtube_version=$(defaults read "$(pwd)/Payload/YouTube.app/Info" CFBundleVersion)
+          PLIST="$(pwd)/Payload/YouTube.app/Info.plist"
+          if [ ! -f "$PLIST" ]; then
+            echo "::error::YouTube Info.plist not found"
+            find "$(pwd)/Payload" -maxdepth 4 -name "Info.plist" -print
+            edit 1
+          fi
+          youtube_version=$(/usr/libexec/PlistBuddy \
+            -c "Print :CFBundleVersion" "$PLIST")
+            
           echo "YT_VERSION=$youtube_version" >> $GITHUB_ENV
           echo "youtube_version=${youtube_version}" >> $GITHUB_OUTPUT
 
